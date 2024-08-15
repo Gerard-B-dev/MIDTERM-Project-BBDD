@@ -125,3 +125,112 @@ INSERT INTO Customers_Sales_Favourites VALUES
 (8, 8),
 (9, 9),
 (10, 10);
+
+
+-- 6.1 --- 10 Simple Queries:
+
+-- 1. Select all elements from a table
+SELECT * FROM Instruments;
+
+
+-- 2. Select elements from a table with a specific condition (even ID), will show the even IDs:
+SELECT * FROM Instruments WHERE ID_Instrument % 2 = 0;
+
+
+-- 3. Sort the results of a query (by price in descending order):
+SELECT * FROM Instruments ORDER BY Price DESC;
+
+-- 4. Limit the number of results (show only the first 5 results):
+SELECT * FROM Instruments LIMIT 5;
+
+-- 5. Search for elements that meet multiple conditions using logical operators (price greater than 1000 and type "String"):
+SELECT * FROM Instruments WHERE Price > 1000 AND Typee = 'String';
+
+-- 6. Search for elements that meet range conditions (price between 1000 and 5000):
+SELECT * FROM Instruments WHERE Price BETWEEN 1000 AND 5000;
+
+-- 7. Search for elements using patterns (names that contain "Piano"):
+SELECT * FROM Instruments WHERE Name LIKE '%Piano%';
+
+-- 8. Count the number of elements that meet a condition (number of string instruments):
+SELECT COUNT(*) FROM Instruments WHERE Typee = 'String';
+
+-- 9. Select elements with a simple join between two tables (information of instruments and their suppliers):
+SELECT i.Name AS Instrument, i.Brand, s.Name AS Supplier, s.Addres 
+FROM Instruments i 
+JOIN Suppliers s ON i.ID_Supplier = s.ID_Supplier;
+
+-- 10. Search for elements with null values (if there was a column that could have null values, for example, a "Price" column):
+SELECT * FROM Instruments WHERE Price IS NULL;
+
+-- 6.2 -- 10 Types of Complex Queries:
+
+
+-- 1. Query with subquery: Find the names of the instruments sold in the favorite sale of the customer "Juan Pérez":
+SELECT Name
+FROM Instruments
+WHERE ID_Instrument IN (
+    SELECT ID_Instrument
+    FROM Details_Sales
+    WHERE ID_Sale = (SELECT ID_Sale FROM  customers_sales_favourites WHERE ID_Customer = (SELECT ID_Customer FROM Customers WHERE Name = 'Juan Pérez'))
+);
+
+-- 2. Query with JOIN: List all sales along with the details of the instruments sold:
+SELECT V.ID_Sale, V.Datee, V.Total, I.Name AS Instrument, I.Brand, DV.Quantity, DV.Subtotal
+FROM Sales V
+JOIN details_sales DV ON V.ID_Sale = DV.ID_Sale
+JOIN Instruments I ON DV.ID_Instrument = I.ID_Instrument;
+
+-- 3. Aggregation (SUM): Calculate the total sales made by each supplier:
+SELECT P.Name AS Supplier, SUM(DV.Subtotal) AS Total
+FROM Suppliers P
+JOIN Instruments I ON P.ID_Supplier = I.ID_Supplier
+JOIN details_sales DV ON I.ID_Instrument = DV.ID_Instrument
+GROUP BY P.Name;
+
+-- 4. Aggregation (AVG): Calculate the average price of instruments by type:
+SELECT Typee, AVG(Price) AS Average_Price
+FROM Instruments
+GROUP BY Typee;
+
+-- 5. Aggregation (MIN and MAX): Find the minimum and maximum price of instruments sold in each sale:
+SELECT DV.ID_Sale, MIN(I.Price) AS Minimum_Price, MAX(I.Price) AS Maximum_Price
+FROM details_sales DV
+JOIN Instruments I ON 	DV.ID_Instrument = I.ID_Instrument
+GROUP BY DV.ID_Sale;
+
+-- 6. Group filtering (HAVING): List the suppliers that have sold more than 10000 euros in total:
+SELECT P.Name AS Supplier, SUM(DV.Subtotal) AS Total_Sales
+FROM Suppliers P
+JOIN Instruments I ON P.ID_Supplier = I.ID_Supplier
+JOIN details_sales DV ON I.ID_Instrument = DV.ID_Instrument
+GROUP BY P.Name
+HAVING SUM(DV.Subtotal) > 10000;
+
+-- 7. Query with combinations of JOINs and subqueries: Find the customers who have bought any instrument made by "Fender":
+SELECT DISTINCT C.Name
+FROM Customers C
+JOIN customers_sales_favourites CSF ON C.ID_Customer = CSF.ID_Customer
+JOIN details_sales DV ON CSF.ID_Sale = DV.ID_Sale
+JOIN Instruments I ON DV.ID_Instrument = I.ID_Instrument
+WHERE I.Brand = 'Fender';
+
+-- 8. Subquery in the WHERE clause: List the instruments that have a price greater than the average price of all instruments:
+SELECT Name, Price
+FROM Instruments
+WHERE Price > (SELECT AVG(Price) FROM Instruments);
+
+-- 9. JOIN between multiple tables: List all sales details including the customer information who made the purchase:
+SELECT V.ID_Sale, V.Datee, C.Name AS Customer, I.Name AS Instrument, SD.Quantity, SD.Subtotal
+FROM Sales V
+JOIN details_sales SD ON V.ID_Sale = SD.ID_Sale
+JOIN Instruments I ON SD.ID_Instrument = I.ID_Instrument
+JOIN customers_sales_favourites csf  ON V.ID_Sale = CSF.ID_Sale
+JOIN Customers C ON CSF.ID_Customer = C.ID_Customer;
+
+
+-- 10. Query with multiple JOINs and aggregation functions: Find the total number of instruments sold and the total sales by type of instrument:
+SELECT I.Typee, COUNT(DS.ID_Instrument) AS Total_Instruments_Sold, SUM(DS.Subtotal) AS Total_Sales
+FROM details_sales DS 
+JOIN Instruments I ON DS.ID_Instrument = I.ID_Instrument
+GROUP BY I.Typee;
