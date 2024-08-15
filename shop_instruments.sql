@@ -234,3 +234,29 @@ SELECT I.Typee, COUNT(DS.ID_Instrument) AS Total_Instruments_Sold, SUM(DS.Subtot
 FROM details_sales DS 
 JOIN Instruments I ON DS.ID_Instrument = I.ID_Instrument
 GROUP BY I.Typee;
+
+-- 7. Triggers:
+
+-- 7.1 Trigger to prevent sales with negative total:
+DELIMITER //
+CREATE TRIGGER Before_Insert_Sales
+BEFORE INSERT ON Sales
+FOR EACH ROW
+BEGIN
+    IF NEW.Total < 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'The sale total cannot be negative.';
+    END IF;
+END;
+//
+DELIMITER ;
+
+-- 7.2 Trigger to update the subtotal in Sales_Details when the quantity is updated
+DELIMITER //
+CREATE TRIGGER Before_Update_Quantity
+BEFORE UPDATE ON details_sales
+FOR EACH ROW
+BEGIN
+    SET NEW.Subtotal = NEW.Quantity * (SELECT Price FROM Instruments WHERE ID_Instrument = NEW.ID_Instrument);
+END;
+//
+DELIMITER ;
