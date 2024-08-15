@@ -280,3 +280,45 @@ VALUES (11, 11, 5, 1, 3500.00);
 
 COMMIT;
 
+-- 9. Functions:
+-- Create at least 3 user-defined functions and ensure they are used in database operations:
+
+-- Function to calculate the total of a sale
+DELIMITER //
+CREATE FUNCTION CalculateSaleTotal(ID_Sale INT) RETURNS DECIMAL(10,2)
+BEGIN
+    DECLARE total DECIMAL(10,2);
+    SELECT SUM(Subtotal) INTO total
+    FROM details_sales 
+    WHERE ID_Sale = ID_sale;
+    RETURN total;
+END;
+//
+DELIMITER ;
+
+-- Function to get the supplier name of an instrument
+DELIMITER //
+CREATE FUNCTION GetSupplierName(ID_Instrument INT) RETURNS VARCHAR(255)
+BEGIN
+    DECLARE supplier_name VARCHAR(255);
+    SELECT s.Name INTO supplier_name
+    FROM Suppliers s
+    JOIN Instruments i ON s.ID_Supplier = i.ID_Supplier
+    WHERE i.ID_Instrument = ID_instrument;
+    RETURN supplier_name;
+END;
+//
+DELIMITER ;
+
+-- Function to get the total quantity of an instrument sold
+DELIMITER //
+CREATE FUNCTION GetTotalQuantitySold(i_ID_Instrument INT) RETURNS INT
+BEGIN
+    DECLARE total_quantity INT;
+    SELECT SUM(Quantity) INTO total_quantity
+    FROM details_sales
+    WHERE ID_Instrument = i_ID_instrument;
+    RETURN total_quantity;
+END;
+//
+DELIMITER ;
