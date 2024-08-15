@@ -29,14 +29,28 @@ Muestra de tabla:
 
 # Búsquedas y consultas
 
-- Se realizan 10 tipos de búsquedas simples
+- Se realizan 10 tipos de búsquedas simples:
+
+![1_busquedas_simples](./1%20simple%20queries.jpeg)
+![2_busquedas_queries](./2%20simple%20queries.jpeg)
+
+
 - Se realizan  10 tipos de búsquedas complejas
+
+![1_complex_queries](./3%20complex%20queries.jpeg)
+![2_complex_queries](./4%20complex%20queries.jpeg)
 
 # Triggers
 - Se crean dos triggers dentro de la base de datos.
 
+![triggers](./5%20triggers.jpeg)
+
 # Transacciones
 - Se incluye una  una transacción que incluya varias operaciones de manipulación de datos.
 
+![transactions](./6%20transactions.jpeg)
+
 # Funciones
 - Se crean  3 funciones definidas por el usuario y las hemos utilizado en las operaciones de la base de datos
+
+![functions](./7%20functions.jpeg)
