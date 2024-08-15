@@ -260,3 +260,23 @@ BEGIN
 END;
 //
 DELIMITER ;
+
+
+-- 8. Transactions
+-- Implement a transaction that includes several data manipulation operations: insert a sale, update the total of the sale, and add the sales details:
+
+-- Transaction that includes several data manipulation operations
+START TRANSACTION;
+
+-- Insert a new sale
+INSERT INTO Sales (ID_Sale, Datee, Total) VALUES (11, '2024-08-01', 0.00);
+
+-- Update the total of the sale after adding the details
+UPDATE Sales SET Total = 3500.00 WHERE ID_Sale = 11;
+
+-- Add sales details
+INSERT INTO details_sales (ID_Detail, ID_Sale, ID_Instrument, Quantity, Subtotal)
+VALUES (11, 11, 5, 1, 3500.00);
+
+COMMIT;
+
