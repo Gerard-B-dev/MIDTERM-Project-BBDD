@@ -1,5 +1,6 @@
 -- Musical instrument store database
-
+-- 1. We create the database:
+-- 2. We use the database:
 DROP DATABASE IF exists shop_instruments;
 create database shop_instruments;
 use shop_instruments;
@@ -10,6 +11,8 @@ CREATE TABLE Suppliers (
     Addres VARCHAR(255),
     Phone VARCHAR(20)
 );
+-- Relation table -   Suppliers - instruments:
+-- A supplier may supply multiple instruments, but an instrument may only be supplied by one supplier.
 
 CREATE TABLE Instruments (
     ID_Instrument INT PRIMARY KEY,
@@ -17,8 +20,8 @@ CREATE TABLE Instruments (
     Typee VARCHAR(255),
     Brand VARCHAR(255),
     Price DECIMAL(10,2),
-    ID_Supplier INT, 
-    FOREIGN KEY (ID_Supplier) REFERENCES Suppliers (ID_Supplier)
+    ID_Supplier INT, -- Column for the foreign key
+    FOREIGN KEY (ID_Supplier) REFERENCES Suppliers (ID_Supplier) -- the Supplier_ID foreign key in the Instruments table, which references the Supplier_ID primary key in the Suppliers table. 
 );
 
 CREATE TABLE Sales (
@@ -27,14 +30,21 @@ CREATE TABLE Sales (
     Total DECIMAL(10,2)
 );
 
+-- Relation table - sales - details_sales:
+-- A sale may include multiple sales details (for example, different instruments and their quantities), but each sales detail is associated with a single sale.
+
+-- Relation table -   instruments - details_sales:
+-- An instrument may appear in several sales details, a specific instrument may be sold on several occasions, but each sales detail refers to a single instrument.
+Example in sales detail: 1 Fender-type guitar, 1 Yamaha-type guitar, etc.
+-- Creating the table for the one-to-one relationship
 CREATE TABLE Details_Sales (
     ID_Detail INT PRIMARY KEY,
     ID_Sale INT,
     ID_Instrument INT,
     Quantity INT,
     Subtotal DECIMAL(10,2),
-    FOREIGN KEY (ID_Sale) REFERENCES Sales(ID_Sale),
-    FOREIGN KEY (ID_Instrument) REFERENCES Instruments(ID_Instrument)
+    FOREIGN KEY (ID_Sale) REFERENCES Sales(ID_Sale), --Sales_ID in Sales_Details is a foreign key that references Sales_ID in the Sales table.
+    FOREIGN KEY (ID_Instrument) REFERENCES Instruments(ID_Instrument) -- Instrument_ID in Sales_Details is a foreign key that references Instrument_ID in the Instrument table.
 );
 
 CREATE TABLE Customers (
@@ -44,15 +54,18 @@ CREATE TABLE Customers (
     Phone VARCHAR(20)
 );
 
+-- Relation table -   customers - customers_sales_favourites:
+-- Each customer can have only one favorite sale, and each favorite sale is assigned to only one customer.
 CREATE TABLE Customers_Sales_Favourites (
     ID_Customer INT,
     ID_Sale INT,
     FOREIGN KEY (ID_Customer) REFERENCES Customers(ID_Customer),
     FOREIGN KEY (ID_Sale) REFERENCES Sales(ID_Sale),
     PRIMARY KEY (ID_Customer, ID_Sale),
-    UNIQUE (ID_Customer) 
+    UNIQUE (ID_Customer) -- UNIQUE (Customer_ID) ensures one-to-one relationship between customers - customers_sales_favourites tables
 );
 
+-- 5. Table content:
 INSERT INTO Suppliers values
 (1, 'Yamaha Corporation', 'Hamamatsu, Shizuoka, Japan', '+81 53-460-2511'),
 (2, 'Gibson Brands, Inc.', 'Nashville, Tennessee, USA', '+1 615-871-4500'),
@@ -284,6 +297,7 @@ COMMIT;
 -- Create at least 3 user-defined functions and ensure they are used in database operations:
 
 -- Function to calculate the total of a sale
+-- CalculateTotalSale: This function sums the subtotals of a specific sale and returns the total
 DELIMITER //
 CREATE FUNCTION CalculateSaleTotal(ID_Sale INT) RETURNS DECIMAL(10,2)
 BEGIN
@@ -297,6 +311,7 @@ END;
 DELIMITER ;
 
 -- Function to get the supplier name of an instrument
+-- GetSupplierName: Returns the name of the supplier who supplied a specific instrument
 DELIMITER //
 CREATE FUNCTION GetSupplierName(ID_Instrument INT) RETURNS VARCHAR(255)
 BEGIN
@@ -311,6 +326,7 @@ END;
 DELIMITER ;
 
 -- Function to get the total quantity of an instrument sold
+-- Get Total Sold Quantity: Calculates the total quantity of a specific instrument that has been sold
 DELIMITER //
 CREATE FUNCTION GetTotalQuantitySold(i_ID_Instrument INT) RETURNS INT
 BEGIN
